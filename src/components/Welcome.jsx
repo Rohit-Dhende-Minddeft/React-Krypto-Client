@@ -125,7 +125,7 @@ const Welcome = () => {
             <div className="welcome-ethereum-card-label">Ethereum</div>
           </div>
         </div>
-        <div className="welcome-form-fields">
+        <div className="welcome-form-fields" id="transfer">
           <input
             placeholder={"Address To"}
             type={"text"}

@@ -34,9 +34,15 @@ const Navbar = () => {
     const handleNavigation = (options) => {
       if (options === "Services") {
         window.location.replace("/#services");
+        setToggle(false);
       }
       if (options === "Transactions") {
         window.location.replace("/#transaction");
+        setToggle(false);
+      }
+      if (options === "Transfer") {
+        window.location.replace("/#transfer");
+        setToggle(false);
       }
     };
     return (
