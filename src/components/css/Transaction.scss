@@ -1,0 +1,88 @@
+.transaction-parent {
+  background-color: #e9f3f1;
+  padding: 1em 1em 2em 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 2px dashed #75cfdf;
+  border-bottom: 2px dashed #75cfdf;
+  border-right: 3px dashed #75cfdf;
+  border-left: 3px dashed #75cfdf;
+  .react-multi-carousel-item {
+    display: flex;
+    justify-content: center;
+  }
+  .react-multiple-carousel__arrow--right {
+    right: calc(0%);
+  }
+  .react-multiple-carousel__arrow--left {
+    left: calc(0%);
+  }
+  .react-multiple-carousel__arrow {
+    background: #75cfdf;
+  }
+}
+.transaction-card-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: fit-content;
+}
+.transaction-heading {
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 3px;
+  border-top: 1px solid grey;
+  padding-top: 0.5em;
+  text-align: center;
+  width: fit-content;
+  align-self: center;
+  margin: 1.5em;
+  color: rgb(85, 85, 85);
+}
+.transaction-card {
+  height: 150px;
+  width: 200px;
+  margin: 0.5em;
+  padding: 1em;
+  display: flex;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: space-around;
+  font-size: 0.8em;
+  background-color: #fff;
+}
+.transaction-card > span {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: black;
+  flex-grow: 4;
+  border-bottom: 1px dashed grey;
+  margin-top: 0.5em;
+}
+.transaction-card > span:last-child {
+  border-bottom: none;
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  .transaction-card {
+    z-index: 1;
+    box-shadow: 1px 1px 7px grey;
+    transition: ease-in 0.1s;
+  }
+}
+.no-transactions {
+  align-self: center;
+  text-align: center;
+}
+@media only screen and (min-width: 700px) {
+  .transaction-parent {
+    .react-multi-carousel-list {
+      justify-content: center;
+    }
+  }
+}
