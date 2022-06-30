@@ -29,8 +29,7 @@ const TransactionCard = ({
   );
 };
 const Transactions = () => {
-  const { currentAccount, transactions } =
-    useContext(TransactionContext);
+  const { currentAccount, transactions } = useContext(TransactionContext);
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -67,7 +66,9 @@ const Transactions = () => {
         </Carousel>
       ) : (
         <div className="no-transactions">
-          No Transactions
+          {transactions?.length && transactions?.length !== 0 && (
+            <>No Transactions</>
+          )}
         </div>
       )}
     </div>
