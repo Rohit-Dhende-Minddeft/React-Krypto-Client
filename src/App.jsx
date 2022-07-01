@@ -32,7 +32,7 @@ const App = () => {
           {!network && (
             <div className="check-network-label">
               <i className="fas fa-exclamation-circle"></i>
-              Make sure you are connected to Gorli Test Network
+              Make sure you are connected to Goerli Test Network
             </div>
           )}
           <div className="navbar-welcome-services-container">
