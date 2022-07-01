@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import ethereumLogo from "../images/weth.png";
 import "./css/Welcome.scss";
-
 import Loader from "./Loader";
-
 import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortedAddress";
 
@@ -56,20 +54,6 @@ const Welcome = () => {
   let welcomeStyle = isPortrait
     ? "welcome-portrait-view"
     : "welcome-desktop-view";
-
-  // const Input = ({ placeholder, name, type, value, handleChange }) => (
-  //   <input
-  //     placeholder={placeholder}
-  //     type={type}
-  //     step="0.0001"
-  //     value={value}
-  //     onChange={(e) => {
-  //       console.log(e);
-  //       handleChange(e, name);
-  //     }}
-  //     className="input-field"
-  //   />
-  // );
 
   return (
     <div className={welcomeStyle}>
