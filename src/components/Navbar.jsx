@@ -36,14 +36,19 @@ const Navbar = () => {
       if (
         options === "Services" ||
         options === "Transactions" ||
-        options === "Transfer"
+        options === "Transfer" ||
+        options === "Tutorials"
       ) {
         setToggle(false);
+      }
+
+      if (options === "Tutorials") {
+        window.open("https://www.youtube.com/watch?v=FFL9IZIkDMM", "_blank");
       }
     };
     return (
       <>
-        <div className={`${menuItemStyle} ${menuOptions}`} id="navbar">
+        <div className={`${menuItemStyle} ${menuOptions}`} id="tutorials">
           {["Services", "Transactions", "Tutorials", "Transfer"].map(
             (options, index) => {
               let scrollTo = options?.toLowerCase();
