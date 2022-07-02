@@ -14,7 +14,7 @@ const TransactionCard = ({
 }) => {
   return (
     <a
-      href={`https://rinkeby.etherscan.io/address/${addressFrom}`}
+      href={`https://goerli.etherscan.io/address/${addressFrom}`}
       target="_blank"
       rel="noreferrer"
     >
