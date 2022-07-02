@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import logo from "../images/logo3.png";
 import "./css/Navbar.scss";
+import ScrollIntoView from "react-scroll-into-view";
 
 const Navbar = () => {
   const [windowDimenion, detectHW] = useState({
@@ -32,26 +33,25 @@ const Navbar = () => {
     let menuOptions = isPortrait ? (toggle ? "show-menu" : "hide-menu") : "";
 
     const handleNavigation = (options) => {
-      if (options === "Services") {
-        window.location.replace("/#services");
-        setToggle(false);
-      }
-      if (options === "Transactions") {
-        window.location.replace("/#transaction");
-        setToggle(false);
-      }
-      if (options === "Transfer") {
-        window.location.replace("/#transfer");
+      if (
+        options === "Services" ||
+        options === "Transactions" ||
+        options === "Transfer"
+      ) {
         setToggle(false);
       }
     };
     return (
       <>
-        <div className={`${menuItemStyle} ${menuOptions}`}>
+        <div className={`${menuItemStyle} ${menuOptions}`} id="navbar">
           {["Services", "Transactions", "Tutorials", "Transfer"].map(
             (options, index) => {
+              let scrollTo = options?.toLowerCase();
               return (
-                <span
+                <ScrollIntoView
+                  smooth={true}
+                  scrollOptions={{ block: "center" }}
+                  selector={`#${scrollTo}`}
                   key={index}
                   className="menu-options"
                   onClick={() => {
@@ -59,7 +59,7 @@ const Navbar = () => {
                   }}
                 >
                   {options}
-                </span>
+                </ScrollIntoView>
               );
             }
           )}

@@ -49,7 +49,7 @@ const Transactions = () => {
   };
 
   return (
-    <div className="transaction-parent" id="transaction">
+    <div className="transaction-parent" id="transactions">
       <div className="transaction-heading">
         {currentAccount ? (
           <div>Latest Transactions</div>

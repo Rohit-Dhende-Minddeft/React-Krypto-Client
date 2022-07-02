@@ -1,8 +1,126 @@
 .footer-container {
-  background-color: #393357;
   border-top: 2px dashed #75cfdf;
-  padding: 0.5em;
   color: #fff;
   display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  .fa-youtube:hover {
+    color: #ff0000;
+  }
+  .fa-instagram:hover {
+    color: #3f729b;
+  }
+  .fa-linkedin:hover {
+    color: #0077b5;
+  }
+  .fa-github:hover {
+    color: #6e5494;
+  }
+  .fa-behance-square:hover {
+    color: #053eff;
+  }
+  .fa-user-secret:hover {
+    color: #0ad204;
+  }
+  .fa-cloud:hover {
+    color: #0498d2;
+  }
+  .fa-plane-departure:hover {
+    color: #04ee79;
+  }
+  .fa-user-plus:hover {
+    color: #5d7ce0;
+  }
+}
+.footer-top {
+  height: 8em;
+  width: 100%;
+  background-color: #282828;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  color: #fff;
+  flex-direction: column;
+}
+.footer-connections-container {
+  display: flex;
+}
+.footer-bottom {
+  background-color: #1a1a1a;
+  width: 100%;
+  text-align: center;
+  padding: 0.5em 0;
+  margin: 0;
+  display: flex;
+  font-size: 0.8em;
   justify-content: center;
+}
+.footer-bottom > div {
+  margin-left: 5px;
+  cursor: pointer;
+}
+.footer-bottom :hover span {
+  color: #09ff00;
+}
+.footer-bottom :hover {
+  color: rgb(202, 202, 202);
+}
+.footer-connections {
+  display: flex;
+  width: fit-content;
+  font-size: 1.3em;
+  justify-content: space-between;
+}
+.footer-connections > i {
+  margin: 0 15px;
+  cursor: pointer;
+}
+.left-side,
+.right-side {
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+}
+.left-side > div,
+.right-side > div {
+  margin: 10px;
+}
+.footer-division {
+  height: 90%;
+  border-left: 1px dashed #fff;
+}
+@media only screen and (max-width: 700px) {
+  .footer-connections-container {
+    flex-direction: column;
+  }
+  .footer-connections {
+    align-items: center;
+  }
+  .footer-top {
+    padding: 1em 0;
+  }
+  .left-side,
+  .right-side {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: right;
+  }
+  .footer-division {
+    border-left: none;
+    height: 0;
+    border-top: 1px dashed #fff;
+    width: 90%;
+    align-self: center;
+    margin: 0.5em 0;
+  }
+  .connection-label {
+    align-self: flex-end;
+  }
+}
+@media only screen and (max-width: 340px) {
+  .footer-container {
+    font-size: 0.8em;
+  }
 }

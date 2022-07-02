@@ -15,7 +15,7 @@ const MetamaskAlert = () => {
           <span>Eth Transfer App</span>
         </div>
       </div>
-      <span>Please install MetaMask to run Krpto Application</span>
+      <span>Please install MetaMask to run Krypto Application</span>
       <span className="metamask-logo-container">
         <a
           href="https://metamask.io/download/"
