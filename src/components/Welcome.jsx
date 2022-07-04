@@ -5,6 +5,9 @@ import Loader from "./Loader";
 import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortedAddress";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Welcome = () => {
   const {
     connectWallet,
@@ -21,7 +24,7 @@ const Welcome = () => {
     e.preventDefault();
 
     if (!addressTo || !amount || !keyword || !message)
-      return alert("Please enter required data");
+      return toast("Please fill all the required data");
 
     sendTransaction();
   };
@@ -166,6 +169,7 @@ const Welcome = () => {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

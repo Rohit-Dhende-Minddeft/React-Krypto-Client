@@ -5,7 +5,8 @@ import { TransactionContext } from "../src/context/TransactionContext";
 import { useContext, useEffect, useState } from "react";
 
 const App = () => {
-  const { isMetamaskInstalled } = useContext(TransactionContext);
+  const { isMetamaskInstalled, currentNetwork, currentAccount } =
+    useContext(TransactionContext);
   let metamask = isMetamaskInstalled;
   const [network, setNetwork] = useState(false);
   const [scroll, setScroll] = useState(false);
@@ -13,6 +14,13 @@ const App = () => {
   const [scrollTop, setScrollTop] = useState(0);
 
   useEffect(() => {
+    const handleChange = () => {
+      window.location.reload();
+    };
+    if (window.ethereum) {
+      window.ethereum.on("chainChanged", handleChange);
+      window.ethereum.on("accountsChanged", handleChange);
+    }
     const onScroll = (e) => {
       setScrollTop(e.target.documentElement.scrollTop);
       setScrolling(e.target.documentElement.scrollTop > scrollTop);
@@ -24,21 +32,11 @@ const App = () => {
       setScroll(false);
     }
 
-    let networks = {
-      Mainnet: "1",
-      Kovan: "42",
-      Ropsten: "3",
-      Rinkeby: " 4",
-      Goerli: "5",
+    return () => {
+      window?.ethereum?.removeListener("accountsChanged", handleChange);
+      window?.ethereum?.removeListener("chainChanged", handleChange);
+      window.removeEventListener("scroll", onScroll);
     };
-    if (metamask) {
-      if (window.ethereum.networkVersion === networks.Goerli) {
-        setNetwork(true);
-      } else {
-        setNetwork(false);
-      }
-    }
-    return () => window.removeEventListener("scroll", onScroll);
   }, [network, metamask, scrolling, scroll, scrollTop]);
 
   const handleClick = () => {
@@ -46,15 +44,57 @@ const App = () => {
     document.documentElement.scrollTop = 0;
   };
 
+  const handleNetworkSwitch = async (networkName) => {
+    await changeNetwork({ networkName });
+  };
+
+  const changeNetwork = async ({ networkName }) => {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x5" }],
+      });
+      setNetwork(true);
+      window.location.reload();
+    } catch (switchError) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x5",
+                chainName: networkName,
+                rpcUrls: ["https://rpc.goerli.mudit.blog/"] /* ... */,
+              },
+            ],
+          });
+        } catch (addError) {
+          // handle "add" error
+          console.log(addError.code);
+        }
+      }
+      // handle other "switch" errors
+    }
+  };
+
   return (
     <div className="app">
       {!isMetamaskInstalled && <MetamaskAlert />}
       {isMetamaskInstalled && (
         <div>
-          {!network && (
-            <div className="check-network-label">
-              <i className="fas fa-exclamation-circle"></i>
-              Make sure you are connected to Goerli Test Network
+          {!currentNetwork && (
+            <div>
+              {currentAccount && (
+                <div
+                  className="check-network-label"
+                  onClick={() => handleNetworkSwitch("goerli")}
+                >
+                  <i className="fas fa-exclamation-circle"></i>
+                  Click to set goerli network
+                </div>
+              )}
             </div>
           )}
           <div className="navbar-welcome-services-container">

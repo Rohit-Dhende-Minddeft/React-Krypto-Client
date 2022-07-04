@@ -32,6 +32,7 @@ export const TransactionProvider = ({ children }) => {
   );
   const [transactions, setTransactions] = useState({});
   const [isMetamaskInstalled, setMetamaskInstalled] = useState(false);
+  const [currentNetwork, setCurrentNetwork] = useState(false);
 
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
@@ -69,8 +70,11 @@ export const TransactionProvider = ({ children }) => {
       });
 
       setCurrentAccounts(accounts[0]);
+      window.location.reload();
     } catch (error) {
-      console.error(error);
+      if (error.code === 4001) {
+        console.log("User rejected the request");
+      }
       throw new Error("No Ethereum object.");
     }
   };
@@ -108,13 +112,37 @@ export const TransactionProvider = ({ children }) => {
 
       const transactionCount = await transactionContract.getTransactionCount();
       setTransactionCount(transactionCount.toNumber());
+      window.location.reload();
     } catch (error) {
       console.error(error);
+      if (error.code === 4001) {
+        console.log("User rejected the request");
+      }
       throw new Error("No Ethereum object.");
     }
   };
 
   useEffect(() => {
+    const checkNetwork = async () => {
+      let networks = {
+        goerli: {
+          chainId: "0x5",
+          version: "5",
+        },
+      };
+      //Check if the network is connected to Goerli network
+      if (ethereum) {
+        if (
+          ethereum.chainId === networks.goerli.chainId ||
+          ethereum.networkVersion === networks.goerli.version
+        ) {
+          setCurrentNetwork(true);
+        } else {
+          setCurrentNetwork(false);
+        }
+      }
+    };
+
     const checkIfWalletIsConnected = async () => {
       try {
         const accounts = await ethereum.request({ method: "eth_accounts" });
@@ -123,6 +151,7 @@ export const TransactionProvider = ({ children }) => {
           setCurrentAccounts(accounts[0]);
           getAllTransactions();
           checkIfTransactionsExist();
+          checkNetwork();
         } else {
           console.log("No Account Found");
         }
@@ -149,6 +178,7 @@ export const TransactionProvider = ({ children }) => {
         return setMetamaskInstalled(true);
       }
     };
+
     checkIfMetamaskInsalled();
     checkIfWalletIsConnected();
   }, []);
@@ -165,6 +195,7 @@ export const TransactionProvider = ({ children }) => {
         isLoading,
         transactionCount,
         isMetamaskInstalled,
+        currentNetwork,
       }}
     >
       {children}
