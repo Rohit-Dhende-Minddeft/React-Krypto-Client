@@ -8,6 +8,12 @@ import { shortenAddress } from "../utils/shortedAddress";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+
 const Welcome = () => {
   const {
     connectWallet,
@@ -17,14 +23,22 @@ const Welcome = () => {
     handleChange,
     isLoading,
   } = useContext(TransactionContext);
+  const [value, setValue] = useState("1");
 
+  const handleTabChange = (event, newValue) => {
+    setValue(newValue);
+  };
   const handleSubmit = (e) => {
     const { addressTo, amount, keyword, message } = formData;
 
     e.preventDefault();
-
-    if (!addressTo || !amount || !keyword || !message)
-      return toast("Please fill all the required data");
+    if (!currentAccount) {
+      return toast("Please connect your wallet first");
+    } else {
+      if (!addressTo || !amount || !keyword || !message) {
+        return toast("Please fill all the required data");
+      }
+    }
 
     sendTransaction();
   };
@@ -58,6 +72,19 @@ const Welcome = () => {
     ? "welcome-portrait-view"
     : "welcome-desktop-view";
 
+  const [tokenAddressTo, setTokenAddress] = useState("");
+  const [tokenAmount, setTokenAmount] = useState("");
+
+  const handleTokenSubmit = (e) => {
+    e.preventDefault();
+    if (!currentAccount) {
+      return toast("Please connect your wallet first");
+    } else {
+      if (tokenAddressTo === "" || tokenAmount === "") {
+        return toast("Please fill all the required data");
+      }
+    }
+  };
   return (
     <div className={welcomeStyle}>
       <div className="welcome-left-side">
@@ -112,61 +139,118 @@ const Welcome = () => {
             <div className="welcome-ethereum-card-label">Ethereum</div>
           </div>
         </div>
-        <div className="welcome-form-fields" id="transfer">
-          <input
-            placeholder={"Address To"}
-            type={"text"}
-            name={"addressTo"}
-            onChange={(e) => {
-              handleChange(e, "addressTo");
-            }}
-            className="input-field"
-          />
-          <input
-            placeholder={"Amount"}
-            type={"number"}
-            name={"amount"}
-            step={"0.0001"}
-            onChange={(e) => {
-              handleChange(e, "amount");
-            }}
-            className="input-field"
-          />
-          <input
-            placeholder={"keyword"}
-            type={"text"}
-            name={"keyword"}
-            onChange={(e) => {
-              handleChange(e, "keyword");
-            }}
-            className="input-field"
-          />
-          <input
-            placeholder={"message"}
-            type={"text"}
-            name={"message"}
-            onChange={(e) => {
-              handleChange(e, "message");
-            }}
-            className="input-field"
-          />
-          <div
-            style={{
-              borderBottom: "2px solid rgb(216, 213, 213)",
-              marginTop: "1em",
-            }}
-          />
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="submit-button"
-            >
-              Send Now
-            </button>
-          )}
+        <div className="welcome-form-fields">
+          <div className="transfer-form-label">Transfer</div>
+          <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList
+                onChange={handleTabChange}
+                aria-label="lab API tabs example"
+              >
+                <Tab label="ETH" value="1" disableRipple />
+                <Tab label="Token" value="2" disableRipple />
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <div className="welcome-form-eth-fields" id="transfer">
+                <input
+                  placeholder={"Address To"}
+                  type={"text"}
+                  name={"addressTo"}
+                  onChange={(e) => {
+                    handleChange(e, "addressTo");
+                  }}
+                  className="input-field"
+                />
+                <input
+                  placeholder={"Amount"}
+                  type={"number"}
+                  name={"amount"}
+                  step={"0.0001"}
+                  onChange={(e) => {
+                    handleChange(e, "amount");
+                  }}
+                  className="input-field"
+                />
+                <input
+                  placeholder={"keyword"}
+                  type={"text"}
+                  name={"keyword"}
+                  onChange={(e) => {
+                    handleChange(e, "keyword");
+                  }}
+                  className="input-field"
+                />
+                <input
+                  placeholder={"message"}
+                  type={"text"}
+                  name={"message"}
+                  onChange={(e) => {
+                    handleChange(e, "message");
+                  }}
+                  className="input-field"
+                />
+                <div
+                  style={{
+                    borderBottom: "2px solid rgb(216, 213, 213)",
+                    marginTop: "1em",
+                  }}
+                />
+                {isLoading ? (
+                  <Loader />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="submit-button"
+                  >
+                    Send Now
+                  </button>
+                )}
+              </div>
+            </TabPanel>
+            <TabPanel value="2">
+              {" "}
+              <div className="welcome-form-eth-fields" id="transfer">
+                <input
+                  placeholder={"Address To"}
+                  type={"text"}
+                  name={"tokenAddressTo"}
+                  onChange={(e) => {
+                    setTokenAddress(e.target.value);
+                  }}
+                  className="input-field"
+                />
+                <input
+                  placeholder={"Amount"}
+                  type={"number"}
+                  name={"tokenAmount"}
+                  step={"0.0001"}
+                  onChange={(e) => {
+                    setTokenAmount(e.target.value);
+                  }}
+                  className="input-field"
+                />
+                <div
+                  style={{
+                    borderBottom: "2px solid rgb(216, 213, 213)",
+                    marginTop: "1em",
+                  }}
+                />
+                {isLoading ? (
+                  <Loader />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => handleTokenSubmit(e)}
+                    className="submit-button"
+                  >
+                    Send Now
+                  </button>
+                )}
+              </div>
+            </TabPanel>
+          </TabContext>
         </div>
       </div>
       <ToastContainer />

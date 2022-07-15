@@ -145,11 +145,53 @@
   border-radius: 50%;
   border: 1px solid #fff;
 }
+.transfer-form-label {
+  align-self: center;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  font-size: 0.8em;
+  border-top: 1px solid grey;
+  padding-top: 5px;
+  color: rgb(231, 230, 230);
+}
 .welcome-form-fields {
   margin-top: 30px;
   display: flex;
   flex-direction: column;
-  width: 55%;
+  width: 60%;
+  height: 300px;
+  .css-13xfq8m-MuiTabPanel-root {
+    padding: 0;
+  }
+  .css-heg063-MuiTabs-flexContainer {
+    justify-content: center;
+  }
+  .css-1h9z7r5-MuiButtonBase-root-MuiTab-root {
+    color: rgb(136, 136, 136);
+  }
+  // .react-tabs__tab{
+  //   border: none;
+  // }
+  // .react-tabs__tab-list {
+  //   border-bottom: none;
+  //   margin: 0 0 10px;
+  //   padding: 0;
+  //   display: flex;
+  //   justify-content: center;
+  //   animation: 1s ease-in-out;
+  //   border: none;
+  // }
+  // .react-tabs__tab--selected {
+  //   background: none;
+  //   border-color: none;
+  //   color: #fff;
+  //   border: none;
+  // }
+}
+.welcome-form-eth-fields {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
   background-color: #42427e;
   padding: 0.5em 1em;
   border-radius: 10px;
