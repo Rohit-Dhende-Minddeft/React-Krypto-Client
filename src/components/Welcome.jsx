@@ -83,6 +83,7 @@ const Welcome = () => {
       if (tokenAddressTo === "" || tokenAmount === "") {
         return toast("Please fill all the required data");
       }
+      return toast("This feature isn't working, i am working on it");
     }
   };
   return (
