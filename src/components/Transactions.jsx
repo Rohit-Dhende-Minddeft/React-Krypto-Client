@@ -66,9 +66,7 @@ const Transactions = () => {
         </Carousel>
       ) : (
         <div className="no-transactions">
-          {transactions?.length && transactions?.length !== 0 && (
-            <>No Transactions</>
-          )}
+          {transactions?.length === 0 && <>No Transactions</>}
         </div>
       )}
     </div>

@@ -26,6 +26,10 @@ export const TransactionProvider = ({ children }) => {
     keyword: "",
     message: "",
   });
+  const [tokenTransferForm, setTokenTransferForm] = useState({
+    tokenAddressTo: "",
+    tokenAmount: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [transactionCount, setTransactionCount] = useState(
     localStorage.getItem("transactionCount")
@@ -34,10 +38,38 @@ export const TransactionProvider = ({ children }) => {
   const [isMetamaskInstalled, setMetamaskInstalled] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(false);
 
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [tokenBalance, setTokenBalance] = useState(null);
+  const [totalSupply, setTotalSupply] = useState(null);
+
+  const [address, setAddress] = useState("");
+  const [inputTokenBalance, setInputTokenBalance] = useState(null);
+
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
 
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
+
+  const handleTokenChange = (e, name) => {
+    setTokenTransferForm((prevState) => ({
+      ...prevState,
+      [name]: e.target.value,
+    }));
+  };
+
+  const handleInputTokenSubmit = async () => {
+    try {
+      getEthereumContract();
+      const transactionContract = getEthereumContract();
+      let balance = await transactionContract.balanceOf(address);
+      setInputTokenBalance(balance.toNumber());
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const getAllTransactions = async () => {
     try {
       const transactionContract = getEthereumContract();
@@ -122,6 +154,44 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  const getTokenDetails = async () => {
+    try {
+      if (ethereum) {
+        const accounts = await ethereum.request({ method: "eth_accounts" });
+        getEthereumContract();
+        const transactionContract = getEthereumContract();
+        let symbol = await transactionContract.symbol();
+        let balance = await transactionContract.balanceOf(accounts[0]);
+        let totalSupply = await transactionContract.totalSupply();
+        setTokenSymbol(symbol);
+        setTokenBalance(balance.toNumber());
+        setTotalSupply(totalSupply.toNumber());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendToken = async () => {
+    try {
+      const { tokenAddressTo, tokenAmount } = tokenTransferForm;
+      getEthereumContract();
+      const transactionContract = getEthereumContract();
+
+      let tokenTransferHash = await transactionContract.transfer(
+        tokenAddressTo,
+        tokenAmount
+      );
+      setIsLoading(true);
+      console.log(`Loading-${tokenTransferHash.hash}`);
+      await tokenTransferHash.wait();
+      setIsLoading(false);
+      console.log(`Success-${tokenTransferHash.hash}`);
+      setTokenTransferForm({});
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const checkNetwork = async () => {
       let networks = {
@@ -181,6 +251,7 @@ export const TransactionProvider = ({ children }) => {
 
     checkIfMetamaskInsalled();
     checkIfWalletIsConnected();
+    getTokenDetails();
   }, []);
 
   return (
@@ -190,12 +261,21 @@ export const TransactionProvider = ({ children }) => {
         currentAccount,
         formData,
         handleChange,
+        handleTokenChange,
         sendTransaction,
         transactions,
         isLoading,
         transactionCount,
         isMetamaskInstalled,
         currentNetwork,
+        sendToken,
+        tokenTransferForm,
+        tokenSymbol,
+        tokenBalance,
+        totalSupply,
+        handleAddressChange,
+        inputTokenBalance,
+        handleInputTokenSubmit,
       }}
     >
       {children}

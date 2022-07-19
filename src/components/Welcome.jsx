@@ -21,7 +21,16 @@ const Welcome = () => {
     formData,
     sendTransaction,
     handleChange,
+    handleTokenChange,
     isLoading,
+    sendToken,
+    tokenTransferForm,
+    tokenSymbol,
+    totalSupply,
+    tokenBalance,
+    handleAddressChange,
+    inputTokenBalance,
+    handleInputTokenSubmit,
   } = useContext(TransactionContext);
   const [value, setValue] = useState("1");
 
@@ -43,6 +52,21 @@ const Welcome = () => {
     sendTransaction();
   };
 
+  const handleTokenSubmit = (e) => {
+    const { tokenAddressTo, tokenAmount } = tokenTransferForm;
+
+    e.preventDefault();
+    if (!currentAccount) {
+      return toast("Please connect your wallet first");
+    } else {
+      if (!tokenAddressTo || !tokenAmount) {
+        return toast("Please fill all the required data");
+      }
+      sendToken();
+
+      // return toast("This feature isn't working, i am working on it");
+    }
+  };
   const [windowDimenion, detectHW] = useState({
     winWidth: window.innerWidth,
     winHeight: window.innerHeight,
@@ -72,20 +96,8 @@ const Welcome = () => {
     ? "welcome-portrait-view"
     : "welcome-desktop-view";
 
-  const [tokenAddressTo, setTokenAddress] = useState("");
-  const [tokenAmount, setTokenAmount] = useState("");
+  const [balanceVisibility, setBalanceVisibility] = useState(false);
 
-  const handleTokenSubmit = (e) => {
-    e.preventDefault();
-    if (!currentAccount) {
-      return toast("Please connect your wallet first");
-    } else {
-      if (tokenAddressTo === "" || tokenAmount === "") {
-        return toast("Please fill all the required data");
-      }
-      return toast("This feature isn't working, i am working on it");
-    }
-  };
   return (
     <div className={welcomeStyle}>
       <div className="welcome-left-side">
@@ -120,24 +132,39 @@ const Welcome = () => {
         </div>
       </div>
       <div className="welcome-right-side">
-        <div className="welcome-ethereum-card">
-          <div className="welcome-ethereum-top">
-            <div className="welcome-ethereum-logo-container">
-              <img
-                src={ethereumLogo}
-                alt="ethereumLogo"
-                className="welcome-ethereum-logo"
-              />
+        <div className="flip-card-container">
+          <div className="flip-card">
+            <div className="flip-card-front">
+              <div className="welcome-ethereum-card">
+                <div className="welcome-ethereum-top">
+                  <div className="welcome-ethereum-logo-container">
+                    <img
+                      src={ethereumLogo}
+                      alt="ethereumLogo"
+                      className="welcome-ethereum-logo"
+                    />
+                  </div>
+                  <div className="welcome-ethereum-card-info-container">
+                    <i className="fas fa-info"></i>
+                  </div>
+                </div>
+                <div className="welcome-ethereum-card-bottom">
+                  <div className="welcome-ethereum-card-address">
+                    {currentAccount ? shortenAddress(currentAccount) : "--"}
+                  </div>
+                  <div className="welcome-ethereum-card-label">Ethereum</div>
+                </div>
+              </div>
             </div>
-            <div className="welcome-ethereum-card-info-container">
-              <i className="fas fa-info"></i>
+            <div className="flip-card-back">
+              <div className="strip"></div>
+              <div className="card-details">
+                {/* <div>Eth Balance:</div> */}
+                <div>Symbol: {tokenSymbol ? tokenSymbol : "--"}</div>
+                <div>Token Balance: {tokenBalance ? tokenBalance : "--"}</div>
+                <div>Total Supply: {totalSupply ? totalSupply : "--"}</div>
+              </div>
             </div>
-          </div>
-          <div className="welcome-ethereum-card-bottom">
-            <div className="welcome-ethereum-card-address">
-              {currentAccount ? shortenAddress(currentAccount) : "--"}
-            </div>
-            <div className="welcome-ethereum-card-label">Ethereum</div>
           </div>
         </div>
         <div className="welcome-form-fields">
@@ -211,27 +238,39 @@ const Welcome = () => {
               </div>
             </TabPanel>
             <TabPanel value="2">
-              {" "}
               <div className="welcome-form-eth-fields" id="transfer">
                 <input
                   placeholder={"Address To"}
                   type={"text"}
                   name={"tokenAddressTo"}
                   onChange={(e) => {
-                    setTokenAddress(e.target.value);
+                    handleTokenChange(e, "tokenAddressTo");
                   }}
                   className="input-field"
                 />
-                <input
-                  placeholder={"Amount"}
-                  type={"number"}
-                  name={"tokenAmount"}
-                  step={"0.0001"}
-                  onChange={(e) => {
-                    setTokenAmount(e.target.value);
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
-                  className="input-field"
-                />
+                >
+                  <input
+                    placeholder={"Num of tokens"}
+                    type={"number"}
+                    name={"tokenAmount"}
+                    onChange={(e) => {
+                      handleTokenChange(e, "tokenAmount");
+                    }}
+                    className="input-field"
+                    style={{ width: "100%" }}
+                  />
+                  <div className="token-symbol">
+                    {tokenSymbol ? tokenSymbol : "Symbol"}
+                  </div>
+                </div>
+
                 <div
                   style={{
                     borderBottom: "2px solid rgb(216, 213, 213)",
@@ -249,6 +288,35 @@ const Welcome = () => {
                     Send Now
                   </button>
                 )}
+                <div className="balance-supply-container">
+                  <input
+                    placeholder={"Check Balance of Address"}
+                    type={"text"}
+                    name={"address"}
+                    onChange={(e) => {
+                      handleAddressChange(e);
+                    }}
+                    className="input-field"
+                  />
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        handleInputTokenSubmit(e);
+                        setBalanceVisibility(true);
+                      }}
+                      className="submit-button"
+                    >
+                      Balance
+                    </button>
+                    <span>
+                      {inputTokenBalance && balanceVisibility
+                        ? inputTokenBalance
+                        : "--"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </TabPanel>
           </TabContext>
