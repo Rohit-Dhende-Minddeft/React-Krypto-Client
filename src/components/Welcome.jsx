@@ -31,6 +31,7 @@ const Welcome = () => {
     handleAddressChange,
     inputTokenBalance,
     handleInputTokenSubmit,
+    currentNetwork,
   } = useContext(TransactionContext);
   const [value, setValue] = useState("1");
 
@@ -49,7 +50,11 @@ const Welcome = () => {
       }
     }
 
-    sendTransaction();
+    if (currentNetwork) {
+      sendTransaction();
+    } else {
+      return toast("Please connect to goerli network");
+    }
   };
 
   const handleTokenSubmit = (e) => {
@@ -62,9 +67,12 @@ const Welcome = () => {
       if (!tokenAddressTo || !tokenAmount) {
         return toast("Please fill all the required data");
       }
-      sendToken();
 
-      // return toast("This feature isn't working, i am working on it");
+      if (currentNetwork) {
+        sendToken();
+      } else {
+        return toast("Please connect to goerli network");
+      }
     }
   };
   const [windowDimenion, detectHW] = useState({
@@ -303,8 +311,18 @@ const Welcome = () => {
                     <button
                       type="button"
                       onClick={(e) => {
-                        handleInputTokenSubmit(e);
-                        setBalanceVisibility(true);
+                        if (currentNetwork) {
+                          handleInputTokenSubmit(e);
+                          setBalanceVisibility(true);
+                        } else {
+                          return toast("Please connect to goerli network");
+                        }
+                        if (
+                          (e.target.value === "") |
+                          (e.target.value === null)
+                        ) {
+                          return toast("Please enter address to check the balance");
+                        }
                       }}
                       className="submit-button"
                     >
