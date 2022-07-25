@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import ethereumLogo from "../images/weth.png";
 import "./css/Welcome.scss";
 import Loader from "./Loader";
@@ -25,27 +25,30 @@ const Welcome = () => {
     isLoading,
     sendToken,
     tokenTransferForm,
-    tokenSymbol,
-    totalSupply,
-    tokenBalance,
+    // tokenSymbol,
+    // totalSupply,
+    // tokenBalance,
     handleAddressChange,
     inputTokenBalance,
     handleInputTokenSubmit,
     currentNetwork,
+    // alertMessage
   } = useContext(TransactionContext);
   const [value, setValue] = useState("1");
+  const tokenAddressTo = useRef("");
+  const numOfTokens = useRef("");
 
   const handleTabChange = (event, newValue) => {
     setValue(newValue);
   };
   const handleSubmit = (e) => {
-    const { addressTo, amount, keyword, message } = formData;
+    const { addressTo, amount } = formData;
 
     e.preventDefault();
     if (!currentAccount) {
       return toast("Please connect your wallet first");
     } else {
-      if (!addressTo || !amount || !keyword || !message) {
+      if (!addressTo || !amount) {
         return toast("Please fill all the required data");
       }
     }
@@ -58,13 +61,16 @@ const Welcome = () => {
   };
 
   const handleTokenSubmit = (e) => {
-    const { tokenAddressTo, tokenAmount } = tokenTransferForm;
-
+    const { tokenAddressFrom, tokenAddressTo, tokenAmount } = tokenTransferForm;
     e.preventDefault();
     if (!currentAccount) {
       return toast("Please connect your wallet first");
     } else {
-      if (!tokenAddressTo || !tokenAmount) {
+      if (
+        // !tokenAddressFrom ||
+        !tokenAddressTo ||
+        !tokenAmount
+      ) {
         return toast("Please fill all the required data");
       }
 
@@ -105,6 +111,12 @@ const Welcome = () => {
     : "welcome-desktop-view";
 
   const [balanceVisibility, setBalanceVisibility] = useState(false);
+  const [balance, setBalance] = useState(null);
+
+  const handleCheckBalance = (e) => {
+    setBalance(e.target.value);
+    handleAddressChange(e);
+  };
 
   return (
     <div className={welcomeStyle}>
@@ -168,9 +180,9 @@ const Welcome = () => {
               <div className="strip"></div>
               <div className="card-details">
                 {/* <div>Eth Balance:</div> */}
-                <div>Symbol: {tokenSymbol ? tokenSymbol : "--"}</div>
-                <div>Token Balance: {tokenBalance ? tokenBalance : "--"}</div>
-                <div>Total Supply: {totalSupply ? totalSupply : "--"}</div>
+                {/* <div>Symbol: {tokenSymbol ? tokenSymbol : "--"}</div> */}
+                {/* <div>Token Balance: {tokenBalance ? tokenBalance : "--"}</div>
+                <div>Total Supply: {totalSupply ? totalSupply : "--"}</div> */}
               </div>
             </div>
           </div>
@@ -208,24 +220,6 @@ const Welcome = () => {
                   }}
                   className="input-field"
                 />
-                <input
-                  placeholder={"keyword"}
-                  type={"text"}
-                  name={"keyword"}
-                  onChange={(e) => {
-                    handleChange(e, "keyword");
-                  }}
-                  className="input-field"
-                />
-                <input
-                  placeholder={"message"}
-                  type={"text"}
-                  name={"message"}
-                  onChange={(e) => {
-                    handleChange(e, "message");
-                  }}
-                  className="input-field"
-                />
                 <div
                   style={{
                     borderBottom: "2px solid rgb(216, 213, 213)",
@@ -247,7 +241,18 @@ const Welcome = () => {
             </TabPanel>
             <TabPanel value="2">
               <div className="welcome-form-eth-fields" id="transfer">
+                {/* <input
+                  ref = {tokenAdd}
+                  placeholder={"Token Address"}
+                  type={"text"}
+                  name={"tokenAddressFrom"}
+                  onChange={(e) => {
+                    handleTokenChange(e, "tokenAddressFrom");
+                  }}
+                  className="input-field"
+                /> */}
                 <input
+                  ref={tokenAddressTo}
                   placeholder={"Address To"}
                   type={"text"}
                   name={"tokenAddressTo"}
@@ -265,6 +270,7 @@ const Welcome = () => {
                   }}
                 >
                   <input
+                    ref={numOfTokens}
                     placeholder={"Num of tokens"}
                     type={"number"}
                     name={"tokenAmount"}
@@ -274,9 +280,9 @@ const Welcome = () => {
                     className="input-field"
                     style={{ width: "100%" }}
                   />
-                  <div className="token-symbol">
+                  {/* <div className="token-symbol">
                     {tokenSymbol ? tokenSymbol : "Symbol"}
-                  </div>
+                  </div> */}
                 </div>
 
                 <div
@@ -290,7 +296,9 @@ const Welcome = () => {
                 ) : (
                   <button
                     type="button"
-                    onClick={(e) => handleTokenSubmit(e)}
+                    onClick={(e) => {
+                      handleTokenSubmit(e);
+                    }}
                     className="submit-button"
                   >
                     Send Now
@@ -302,7 +310,7 @@ const Welcome = () => {
                     type={"text"}
                     name={"address"}
                     onChange={(e) => {
-                      handleAddressChange(e);
+                      handleCheckBalance(e);
                     }}
                     className="input-field"
                   />
@@ -317,11 +325,11 @@ const Welcome = () => {
                         } else {
                           return toast("Please connect to goerli network");
                         }
-                        if (
-                          (e.target.value === "") |
-                          (e.target.value === null)
-                        ) {
-                          return toast("Please enter address to check the balance");
+
+                        if (balance === "" || balance === null) {
+                          return toast(
+                            "Please enter address to check the balance"
+                          );
                         }
                       }}
                       className="submit-button"
@@ -330,7 +338,9 @@ const Welcome = () => {
                     </button>
                     <span>
                       {inputTokenBalance && balanceVisibility
-                        ? inputTokenBalance
+                        ? inputTokenBalance.toString()
+                        : inputTokenBalance === 0
+                        ? "No Balance"
                         : "--"}
                     </span>
                   </div>

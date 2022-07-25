@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractABI, contractAddress } from "../utils/constants";
+import {
+  ethContractABI,
+  ethContractAddress,
+  tokenContractABI,
+  tokenContractAddress,
+} from "../utils/constants";
+import { toast } from "react-toastify";
 
 export const TransactionContext = React.createContext();
 
@@ -9,13 +15,25 @@ const { ethereum } = window;
 const getEthereumContract = () => {
   const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
-  const transactionContract = new ethers.Contract(
-    contractAddress,
-    contractABI,
+  const ethContract = new ethers.Contract(
+    ethContractAddress,
+    ethContractABI,
     signer
   );
 
-  return transactionContract;
+  return ethContract;
+};
+
+const getTokenContract = () => {
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const tokenContract = new ethers.Contract(
+    tokenContractAddress,
+    tokenContractABI,
+    signer
+  );
+
+  return tokenContract;
 };
 
 export const TransactionProvider = ({ children }) => {
@@ -23,10 +41,9 @@ export const TransactionProvider = ({ children }) => {
   const [formData, setFormData] = useState({
     addressTo: "",
     amount: "",
-    keyword: "",
-    message: "",
   });
   const [tokenTransferForm, setTokenTransferForm] = useState({
+    tokenAddressFrom: "",
     tokenAddressTo: "",
     tokenAmount: "",
   });
@@ -45,6 +62,9 @@ export const TransactionProvider = ({ children }) => {
   const [address, setAddress] = useState("");
   const [inputTokenBalance, setInputTokenBalance] = useState(null);
 
+  // const [alertMessageVisibility, setAlertMessageVisibility] = useState(false)
+  // const [alertMessage, setAlertMessage] = useState('')
+
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
@@ -62,17 +82,21 @@ export const TransactionProvider = ({ children }) => {
 
   const handleInputTokenSubmit = async () => {
     try {
-      getEthereumContract();
-      const transactionContract = getEthereumContract();
+      getTokenContract();
+      const transactionContract = getTokenContract();
       let balance = await transactionContract.balanceOf(address);
-      setInputTokenBalance(balance.toNumber());
+      setInputTokenBalance(balance);
     } catch (error) {
-      console.log(error);
+      console.log(error.code);
+      if (error.argument === "address" && error.code === "INVALID_ARGUMENT") {
+        return toast("Please enter valid address");
+      }
     }
   };
   const getAllTransactions = async () => {
     try {
       const transactionContract = getEthereumContract();
+
       const availableTransactions =
         await transactionContract.getAllTransactions();
       const structuredTransaction = availableTransactions.map(
@@ -84,8 +108,6 @@ export const TransactionProvider = ({ children }) => {
             timestamp: new Date(
               transactions.timestamp.toNumber() * 1000
             ).toLocaleString(),
-            message: transactions.message,
-            keyword: transactions.keyword,
           };
         }
       );
@@ -113,44 +135,52 @@ export const TransactionProvider = ({ children }) => {
 
   const sendTransaction = async () => {
     try {
-      const { addressTo, amount, keyword, message } = formData;
+      const { addressTo, amount } = formData;
       getEthereumContract();
       const transactionContract = getEthereumContract();
       const parsedAmount = ethers.utils.parseEther(amount);
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      let balance = await provider.getBalance(currentAccount);
+      let ethBal = ethers.utils.formatEther(balance);
 
-      await ethereum.request({
-        method: "eth_sendTransaction",
-        params: [
-          {
-            from: currentAccount,
-            to: addressTo,
-            gas: "0x5208", //21000 GWEI
-            value: parsedAmount._hex, //0.0001
-          },
-        ],
-      });
+      if (amount < ethBal) {
+        await ethereum.request({
+          method: "eth_sendTransaction",
+          params: [
+            {
+              from: currentAccount,
+              to: addressTo,
+              gas: "0x5208", //21000 GWEI
+              value: parsedAmount._hex, //0.0001
+            },
+          ],
+        });
+        const transactionHash = await transactionContract.addToBlockChain(
+          addressTo,
+          parsedAmount
+        );
+        setIsLoading(true);
+        console.log(`Loading-${transactionHash.hash}`);
+        await transactionHash.wait();
+        setIsLoading(false);
+        console.log(`Success-${transactionHash.hash}`);
 
-      const transactionHash = await transactionContract.addToBlockChain(
-        addressTo,
-        parsedAmount,
-        message,
-        keyword
-      );
-      setIsLoading(true);
-      console.log(`Loading-${transactionHash.hash}`);
-      await transactionHash.wait();
-      setIsLoading(false);
-      console.log(`Success-${transactionHash.hash}`);
+        const transactionCount =
+          await transactionContract.getTransactionCount();
+        setTransactionCount(transactionCount.toNumber());
 
-      const transactionCount = await transactionContract.getTransactionCount();
-      setTransactionCount(transactionCount.toNumber());
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-      if (error.code === 4001) {
-        console.log("User rejected the request");
+        return toast("Transaction Completed");
+      } else {
+        return toast("Not enough eths to transfer");
       }
-      throw new Error("No Ethereum object.");
+    } catch (error) {
+      console.log(error.message);
+      if (error.code === 4001) {
+        return toast("User denied transaction");
+      }
+      if (error.message === `Invalid "to" address.`) {
+        return toast("Please enter valid address");
+      }
     }
   };
 
@@ -158,14 +188,14 @@ export const TransactionProvider = ({ children }) => {
     try {
       if (ethereum) {
         const accounts = await ethereum.request({ method: "eth_accounts" });
-        getEthereumContract();
-        const transactionContract = getEthereumContract();
-        let symbol = await transactionContract.symbol();
-        let balance = await transactionContract.balanceOf(accounts[0]);
-        let totalSupply = await transactionContract.totalSupply();
+        getTokenContract();
+        const tokenContract = getTokenContract();
+        let symbol = await tokenContract.symbol();
+        let balance = await tokenContract.balanceOf(accounts[0]);
+        let totalSupply = await tokenContract.totalSupply();
         setTokenSymbol(symbol);
-        setTokenBalance(balance.toNumber());
-        setTotalSupply(totalSupply.toNumber());
+        setTokenBalance(balance);
+        setTotalSupply(totalSupply);
       }
     } catch (error) {
       console.log(error);
@@ -174,22 +204,49 @@ export const TransactionProvider = ({ children }) => {
 
   const sendToken = async () => {
     try {
-      const { tokenAddressTo, tokenAmount } = tokenTransferForm;
-      getEthereumContract();
-      const transactionContract = getEthereumContract();
+      const { tokenAddressFrom, tokenAddressTo, tokenAmount } =
+        tokenTransferForm;
+      getTokenContract();
+      const transactionContract = getTokenContract();
 
-      let tokenTransferHash = await transactionContract.transfer(
-        tokenAddressTo,
-        tokenAmount
-      );
-      setIsLoading(true);
-      console.log(`Loading-${tokenTransferHash.hash}`);
-      await tokenTransferHash.wait();
-      setIsLoading(false);
-      console.log(`Success-${tokenTransferHash.hash}`);
-      setTokenTransferForm({});
+      let currentBalance = await transactionContract.balanceOf(currentAccount);
+      let convertedBalance = parseInt(currentBalance._hex, 16);
+
+      let decimals = await transactionContract.decimals();
+
+      let amount = tokenAmount * 10 ** decimals;
+
+      let tokenTransferHash;
+      if (amount < convertedBalance) {
+        tokenTransferHash = await transactionContract.transfer(
+          // tokenAddressFrom,
+          tokenAddressTo,
+          amount.toString()
+        );
+        setIsLoading(true);
+        console.log(`Loading-${tokenTransferHash.hash}`);
+        await tokenTransferHash.wait();
+        setIsLoading(false);
+        console.log(`Success-${tokenTransferHash.hash}`);
+
+        toast("Transaction completed");
+      } else {
+        return toast("You dont have sufficient tokens to transfer");
+      }
     } catch (error) {
       console.log(error);
+      if (error.code === 4001) {
+        return toast("User denied transaction");
+      }
+      if (error.argument === "numTokens" && error.code === "INVALID_ARGUMENT") {
+        return toast("Please enter valid amount");
+      }
+      if (
+        (error.argument === "address" && error.code === "INVALID_ARGUMENT") ||
+        (error.argument === "name" && error.code === "INVALID_ARGUMENT")
+      ) {
+        return toast("Please enter valid address");
+      }
     }
   };
   useEffect(() => {
@@ -276,6 +333,7 @@ export const TransactionProvider = ({ children }) => {
         handleAddressChange,
         inputTokenBalance,
         handleInputTokenSubmit,
+        // alertMessage
       }}
     >
       {children}
