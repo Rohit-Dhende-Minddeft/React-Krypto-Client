@@ -25,14 +25,10 @@ const Welcome = () => {
     isLoading,
     sendToken,
     tokenTransferForm,
-    // tokenSymbol,
-    // totalSupply,
-    // tokenBalance,
     handleAddressChange,
     inputTokenBalance,
     handleInputTokenSubmit,
     currentNetwork,
-    // alertMessage
   } = useContext(TransactionContext);
   const [value, setValue] = useState("1");
   const tokenAddressTo = useRef("");
@@ -61,13 +57,12 @@ const Welcome = () => {
   };
 
   const handleTokenSubmit = (e) => {
-    const { tokenAddressFrom, tokenAddressTo, tokenAmount } = tokenTransferForm;
+    const { tokenAddressTo, tokenAmount } = tokenTransferForm;
     e.preventDefault();
     if (!currentAccount) {
       return toast("Please connect your wallet first");
     } else {
       if (
-        // !tokenAddressFrom ||
         !tokenAddressTo ||
         !tokenAmount
       ) {

@@ -43,7 +43,6 @@ export const TransactionProvider = ({ children }) => {
     amount: "",
   });
   const [tokenTransferForm, setTokenTransferForm] = useState({
-    tokenAddressFrom: "",
     tokenAddressTo: "",
     tokenAmount: "",
   });
@@ -61,9 +60,6 @@ export const TransactionProvider = ({ children }) => {
 
   const [address, setAddress] = useState("");
   const [inputTokenBalance, setInputTokenBalance] = useState(null);
-
-  // const [alertMessageVisibility, setAlertMessageVisibility] = useState(false)
-  // const [alertMessage, setAlertMessage] = useState('')
 
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
@@ -204,8 +200,7 @@ export const TransactionProvider = ({ children }) => {
 
   const sendToken = async () => {
     try {
-      const { tokenAddressFrom, tokenAddressTo, tokenAmount } =
-        tokenTransferForm;
+      const { tokenAddressTo, tokenAmount } = tokenTransferForm;
       getTokenContract();
       const transactionContract = getTokenContract();
 
@@ -219,7 +214,6 @@ export const TransactionProvider = ({ children }) => {
       let tokenTransferHash;
       if (amount < convertedBalance) {
         tokenTransferHash = await transactionContract.transfer(
-          // tokenAddressFrom,
           tokenAddressTo,
           amount.toString()
         );
