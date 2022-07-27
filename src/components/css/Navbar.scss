@@ -87,6 +87,21 @@
   -webkit-transform: rotate(45deg) translate(-6px, -8px);
   transform: rotate(45deg) translate(-6px, -8px);
 }
+.logout-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.logout-button:hover {
+  .logout-icon {
+    color:#5DC319;
+  }
+}
+.logout-icon {
+  color: grey;
+}
+
 @media only screen and (max-width: 700px) {
   .logo {
     align-self: flex-start;

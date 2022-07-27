@@ -5,13 +5,7 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import "./css/Transaction.scss";
 
-const TransactionCard = ({
-  addressTo,
-  amount,
-  addressFrom,
-  message,
-  timestamp,
-}) => {
+const TransactionCard = ({ addressTo, amount, addressFrom, timestamp }) => {
   return (
     <a
       href={`https://goerli.etherscan.io/address/${addressFrom}`}
@@ -23,7 +17,6 @@ const TransactionCard = ({
         <span>Address To: {shortenAddress(addressTo)}</span>
         <span>Amount: {amount}</span>
         <span>Timestamp: {timestamp}</span>
-        <span>Message: {message}</span>
       </div>
     </a>
   );

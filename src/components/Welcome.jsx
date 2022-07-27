@@ -14,6 +14,25 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged  } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHcY6FkWMeFDJtYBF-5Xb2gVmFqhjagxg",
+  authDomain: "crypto-2ad45.firebaseapp.com",
+  projectId: "crypto-2ad45",
+  storageBucket: "crypto-2ad45.appspot.com",
+  messagingSenderId: "319738015372",
+  appId: "1:319738015372:web:0ec15bdc1d41ff4593d5a9",
+  measurementId: "G-ZD3QSE0M09",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
 const Welcome = () => {
   const {
     connectWallet,
@@ -26,13 +45,18 @@ const Welcome = () => {
     sendToken,
     tokenTransferForm,
     handleAddressChange,
-    inputTokenBalance,
+    tokenBalance,
     handleInputTokenSubmit,
     currentNetwork,
+    tokenSymbol,
+    ethBalance,
   } = useContext(TransactionContext);
   const [value, setValue] = useState("1");
+  const tokenAddress = useRef("");
   const tokenAddressTo = useRef("");
   const numOfTokens = useRef("");
+
+  const [username, setUsername] = useState("");
 
   const handleTabChange = (event, newValue) => {
     setValue(newValue);
@@ -57,15 +81,12 @@ const Welcome = () => {
   };
 
   const handleTokenSubmit = (e) => {
-    const { tokenAddressTo, tokenAmount } = tokenTransferForm;
+    const { tokenAddress, tokenAddressTo, tokenAmount } = tokenTransferForm;
     e.preventDefault();
     if (!currentAccount) {
       return toast("Please connect your wallet first");
     } else {
-      if (
-        !tokenAddressTo ||
-        !tokenAmount
-      ) {
+      if (!tokenAddress || !tokenAddressTo || !tokenAmount) {
         return toast("Please fill all the required data");
       }
 
@@ -89,6 +110,22 @@ const Welcome = () => {
   };
 
   useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+
+        const urn = user.displayName;
+        setUsername(urn);
+        // ...
+      } else {
+        // User is signed out
+        // ...
+        console.log("User signed out");
+      }
+    });
+
+
     window.addEventListener("resize", detectSize);
     return () => {
       window.removeEventListener("resize", detectSize);
@@ -167,17 +204,21 @@ const Welcome = () => {
                   <div className="welcome-ethereum-card-address">
                     {currentAccount ? shortenAddress(currentAccount) : "--"}
                   </div>
-                  <div className="welcome-ethereum-card-label">Ethereum</div>
+                  <div className="welcome-ethereum-card-label">
+                  <div>Ethereum
+                  </div> <div className="card-holder-name">{username}</div></div>
+            
                 </div>
               </div>
             </div>
             <div className="flip-card-back">
               <div className="strip"></div>
               <div className="card-details">
-                {/* <div>Eth Balance:</div> */}
-                {/* <div>Symbol: {tokenSymbol ? tokenSymbol : "--"}</div> */}
-                {/* <div>Token Balance: {tokenBalance ? tokenBalance : "--"}</div>
-                <div>Total Supply: {totalSupply ? totalSupply : "--"}</div> */}
+                <div>
+                  Eth Balance:{" "}
+                  {ethBalance ? ethBalance.slice(0, 6) + " ETH" : "--"}
+                </div>
+
               </div>
             </div>
           </div>
@@ -236,16 +277,16 @@ const Welcome = () => {
             </TabPanel>
             <TabPanel value="2">
               <div className="welcome-form-eth-fields" id="transfer">
-                {/* <input
-                  ref = {tokenAdd}
+                <input
+                  ref={tokenAddress}
                   placeholder={"Token Address"}
                   type={"text"}
-                  name={"tokenAddressFrom"}
+                  name={"tokenAddress"}
                   onChange={(e) => {
-                    handleTokenChange(e, "tokenAddressFrom");
+                    handleTokenChange(e, "tokenAddress");
                   }}
                   className="input-field"
-                /> */}
+                />
                 <input
                   ref={tokenAddressTo}
                   placeholder={"Address To"}
@@ -275,9 +316,6 @@ const Welcome = () => {
                     className="input-field"
                     style={{ width: "100%" }}
                   />
-                  {/* <div className="token-symbol">
-                    {tokenSymbol ? tokenSymbol : "Symbol"}
-                  </div> */}
                 </div>
 
                 <div
@@ -301,7 +339,7 @@ const Welcome = () => {
                 )}
                 <div className="balance-supply-container">
                   <input
-                    placeholder={"Check Balance of Address"}
+                    placeholder={"Token Address"}
                     type={"text"}
                     name={"address"}
                     onChange={(e) => {
@@ -323,7 +361,7 @@ const Welcome = () => {
 
                         if (balance === "" || balance === null) {
                           return toast(
-                            "Please enter address to check the balance"
+                            "Please enter token address to check the balance"
                           );
                         }
                       }}
@@ -332,9 +370,9 @@ const Welcome = () => {
                       Balance
                     </button>
                     <span>
-                      {inputTokenBalance && balanceVisibility
-                        ? inputTokenBalance.toString()
-                        : inputTokenBalance === 0
+                      {tokenBalance && balanceVisibility
+                        ? tokenBalance + " " + tokenSymbol
+                        : tokenBalance === 0
                         ? "No Balance"
                         : "--"}
                     </span>

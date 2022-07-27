@@ -4,7 +4,6 @@ import {
   ethContractABI,
   ethContractAddress,
   tokenContractABI,
-  tokenContractAddress,
 } from "../utils/constants";
 import { toast } from "react-toastify";
 
@@ -24,11 +23,11 @@ const getEthereumContract = () => {
   return ethContract;
 };
 
-const getTokenContract = () => {
+const getTokenContract = (tokenAddress) => {
   const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
   const tokenContract = new ethers.Contract(
-    tokenContractAddress,
+    tokenAddress, //dynamic address
     tokenContractABI,
     signer
   );
@@ -37,38 +36,57 @@ const getTokenContract = () => {
 };
 
 export const TransactionProvider = ({ children }) => {
+  //Active Account Address
   const [currentAccount, setCurrentAccounts] = useState("");
+
+  //Eth Transfer Form
   const [formData, setFormData] = useState({
     addressTo: "",
     amount: "",
   });
+
+  //Token Transfer Form
   const [tokenTransferForm, setTokenTransferForm] = useState({
     tokenAddressTo: "",
     tokenAmount: "",
   });
+
+  //Loading state
   const [isLoading, setIsLoading] = useState(false);
+
+  //Eth transaction count
   const [transactionCount, setTransactionCount] = useState(
     localStorage.getItem("transactionCount")
   );
+
+  //Eth transactions
   const [transactions, setTransactions] = useState({});
+
+  //Check Metamask installed or not
   const [isMetamaskInstalled, setMetamaskInstalled] = useState(false);
+
+  //Check active network
   const [currentNetwork, setCurrentNetwork] = useState(false);
 
+  //Token state definitions
+  const [tokenAddress, setAddress] = useState("");
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [tokenBalance, setTokenBalance] = useState(null);
-  const [totalSupply, setTotalSupply] = useState(null);
 
-  const [address, setAddress] = useState("");
-  const [inputTokenBalance, setInputTokenBalance] = useState(null);
+  //Eth Balance state
+  const [ethBalance, setEthBalance] = useState("");
 
+  //Set Eth transfer form data
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
 
+  //Set Token address
   const handleAddressChange = (e) => {
     setAddress(e.target.value);
   };
 
+  //Set Token transfer form data
   const handleTokenChange = (e, name) => {
     setTokenTransferForm((prevState) => ({
       ...prevState,
@@ -76,12 +94,16 @@ export const TransactionProvider = ({ children }) => {
     }));
   };
 
+  //Check balance of tokens of current account
   const handleInputTokenSubmit = async () => {
     try {
-      getTokenContract();
-      const transactionContract = getTokenContract();
-      let balance = await transactionContract.balanceOf(address);
-      setInputTokenBalance(balance);
+      const tokenContract = getTokenContract(tokenAddress);
+      let balance = await tokenContract.balanceOf(currentAccount);
+      let decimals = await tokenContract.decimals();
+      let symbol = await tokenContract.symbol();
+      let convertedBalance = balance * 10 ** -decimals;
+      setTokenBalance(convertedBalance);
+      setTokenSymbol(symbol);
     } catch (error) {
       console.log(error.code);
       if (error.argument === "address" && error.code === "INVALID_ARGUMENT") {
@@ -89,6 +111,8 @@ export const TransactionProvider = ({ children }) => {
       }
     }
   };
+
+  //Get all eth transactions
   const getAllTransactions = async () => {
     try {
       const transactionContract = getEthereumContract();
@@ -113,6 +137,7 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  //Connect to wallet
   const connectWallet = async () => {
     try {
       const accounts = await ethereum?.request({
@@ -129,10 +154,11 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  //Send eth
   const sendTransaction = async () => {
     try {
       const { addressTo, amount } = formData;
-      getEthereumContract();
+
       const transactionContract = getEthereumContract();
       const parsedAmount = ethers.utils.parseEther(amount);
       const provider = new ethers.providers.Web3Provider(ethereum);
@@ -180,35 +206,17 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
-  const getTokenDetails = async () => {
-    try {
-      if (ethereum) {
-        const accounts = await ethereum.request({ method: "eth_accounts" });
-        getTokenContract();
-        const tokenContract = getTokenContract();
-        let symbol = await tokenContract.symbol();
-        let balance = await tokenContract.balanceOf(accounts[0]);
-        let totalSupply = await tokenContract.totalSupply();
-        setTokenSymbol(symbol);
-        setTokenBalance(balance);
-        setTotalSupply(totalSupply);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  //Send Token
   const sendToken = async () => {
     try {
-      const { tokenAddressTo, tokenAmount } = tokenTransferForm;
-      getTokenContract();
-      const transactionContract = getTokenContract();
+      const { tokenAddress, tokenAddressTo, tokenAmount } = tokenTransferForm;
+
+      const transactionContract = getTokenContract(tokenAddress);
 
       let currentBalance = await transactionContract.balanceOf(currentAccount);
       let convertedBalance = parseInt(currentBalance._hex, 16);
 
       let decimals = await transactionContract.decimals();
-
       let amount = tokenAmount * 10 ** decimals;
 
       let tokenTransferHash;
@@ -243,6 +251,7 @@ export const TransactionProvider = ({ children }) => {
       }
     }
   };
+
   useEffect(() => {
     const checkNetwork = async () => {
       let networks = {
@@ -264,6 +273,17 @@ export const TransactionProvider = ({ children }) => {
       }
     };
 
+    const getEthDetails = async (acc) => {
+      try {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+
+        let balance = await provider.getBalance(acc);
+        let ethBal = ethers.utils.formatEther(balance);
+        setEthBalance(ethBal);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     const checkIfWalletIsConnected = async () => {
       try {
         const accounts = await ethereum.request({ method: "eth_accounts" });
@@ -273,6 +293,7 @@ export const TransactionProvider = ({ children }) => {
           getAllTransactions();
           checkIfTransactionsExist();
           checkNetwork();
+          getEthDetails(accounts[0]);
         } else {
           console.log("No Account Found");
         }
@@ -302,7 +323,6 @@ export const TransactionProvider = ({ children }) => {
 
     checkIfMetamaskInsalled();
     checkIfWalletIsConnected();
-    getTokenDetails();
   }, []);
 
   return (
@@ -323,11 +343,9 @@ export const TransactionProvider = ({ children }) => {
         tokenTransferForm,
         tokenSymbol,
         tokenBalance,
-        totalSupply,
         handleAddressChange,
-        inputTokenBalance,
         handleInputTokenSubmit,
-        // alertMessage
+        ethBalance
       }}
     >
       {children}

@@ -47,7 +47,6 @@
   justify-content: center;
   align-items: center;
   flex: 1;
-  height: 80vh;
 }
 .table-container {
   display: flex;
@@ -112,6 +111,13 @@
 }
 .welcome-ethereum-card-label {
   font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+}
+.card-holder-name{
+  font-size: 0.8em;
+  color:rgb(255, 255, 255);
+  text-shadow: 1px 1px 2px grey;
 }
 .welcome-ethereum-logo-container {
   margin-top: 10px;
