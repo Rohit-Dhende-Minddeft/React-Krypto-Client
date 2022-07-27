@@ -43,7 +43,7 @@ const Login = (props) => {
     }
   };
 
-  const [isLoginModal, setLoginModal] = useState(false);
+  const [isLoginModal, setLoginModal] = useState(true);
   return (
     <div className="login-form-parent">
       <Box
@@ -94,7 +94,10 @@ const Login = (props) => {
             Submit
           </Button>
         </div>
-        <label>{isLoginModal ? "Login" : "Sign up"} with</label>
+        <div>
+          or
+        </div>
+        <label>Login with</label>
         <div className="google-logo">
           <img src={googleLogo} onClick={handleGoogleSubmit} alt="logo"/>
         </div>

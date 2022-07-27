@@ -35,12 +35,25 @@ const auth = getAuth(app);
 export const db = getFirestore(app);
 
 export const emailSignUp = async (displayName, email, password) => {
-  const { user } = await createUserWithEmailAndPassword(auth, email, password);
-  console.log(`User ${user.uid} created`);
-  await updateProfile(user, {
-    displayName: displayName,
-  });
-  console.log("User profile updated");
+
+  try {
+    const { user } = await createUserWithEmailAndPassword(auth, email, password);
+
+    console.log(`User ${user.uid} created`);
+    await updateProfile(user, {
+      displayName: displayName,
+    });
+    console.log("User profile updated");
+    window.location.reload()
+  } catch (error) {
+    if(error.code === "auth/email-already-in-use"){
+      return toast("User already exist");
+    }
+        if(password.length < 6){
+      return toast("Password minimum length of 6 characters")
+    }
+  }
+
 };
 
 export const emailLogin = async (email, password) => {
