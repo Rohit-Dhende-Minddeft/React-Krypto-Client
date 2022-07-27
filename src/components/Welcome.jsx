@@ -121,7 +121,6 @@ const Welcome = () => {
       } else {
         // User is signed out
         // ...
-        console.log("User signed out");
       }
     });
 
