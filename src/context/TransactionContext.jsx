@@ -106,8 +106,11 @@ export const TransactionProvider = ({ children }) => {
       setTokenSymbol(symbol);
     } catch (error) {
       console.log(error.code);
-      if (error.argument === "address" && error.code === "INVALID_ARGUMENT") {
-        return toast("Please enter valid address");
+      if (
+        (error.argument === "address" && error.code === "INVALID_ARGUMENT") ||
+        error.code === "CALL_EXCEPTION"
+      ) {
+        return toast("Please enter valid token address");
       }
     }
   };
@@ -119,6 +122,7 @@ export const TransactionProvider = ({ children }) => {
 
       const availableTransactions =
         await transactionContract.getAllTransactions();
+
       const structuredTransaction = availableTransactions.map(
         (transactions) => {
           return {
@@ -255,16 +259,16 @@ export const TransactionProvider = ({ children }) => {
   useEffect(() => {
     const checkNetwork = async () => {
       let networks = {
-        goerli: {
-          chainId: "0x5",
-          version: "5",
+        bsc: {
+          chainId: "0x61",
+          version: "97",
         },
       };
-      //Check if the network is connected to Goerli network
+      //Check if the network is connected to BSC Testnet network
       if (ethereum) {
         if (
-          ethereum.chainId === networks.goerli.chainId ||
-          ethereum.networkVersion === networks.goerli.version
+          ethereum.chainId === networks.bsc.chainId ||
+          ethereum.networkVersion === networks.bsc.version
         ) {
           setCurrentNetwork(true);
         } else {
@@ -345,7 +349,7 @@ export const TransactionProvider = ({ children }) => {
         tokenBalance,
         handleAddressChange,
         handleInputTokenSubmit,
-        ethBalance
+        ethBalance,
       }}
     >
       {children}

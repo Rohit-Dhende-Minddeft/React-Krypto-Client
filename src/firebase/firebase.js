@@ -9,6 +9,8 @@ import {
 } from "firebase/auth";
 import { GoogleAuthProvider, updateProfile } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+
 import { toast } from "react-toastify";
 
 const provider = new GoogleAuthProvider();
@@ -35,34 +37,40 @@ const auth = getAuth(app);
 export const db = getFirestore(app);
 
 export const emailSignUp = async (displayName, email, password) => {
-
   try {
-    const { user } = await createUserWithEmailAndPassword(auth, email, password);
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const docRef = await addDoc(collection(db, "usersWithEmail"), {
+      username: displayName,
+      email: email,
+    });
+    console.log("Document written with ID: ", docRef.id);
 
     console.log(`User ${user.uid} created`);
     await updateProfile(user, {
       displayName: displayName,
     });
     console.log("User profile updated");
-    window.location.reload()
+    window.location.reload();
   } catch (error) {
-    if(error.code === "auth/email-already-in-use"){
+    if (error.code === "auth/email-already-in-use") {
       return toast("User already exist");
     }
-        if(password.length < 6){
-      return toast("Password minimum length of 6 characters")
+    if (password.length < 6) {
+      return toast("Password minimum length of 6 characters");
     }
   }
-
 };
 
 export const emailLogin = async (email, password) => {
-
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in
       const user = userCredential.user;
-      console.log("User logged in", user)
+      console.log("User logged in", user.displayName);
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -90,16 +98,15 @@ export const logout = async () => {
 export const signInWithGoogle = () => {
   signInWithPopup(auth, provider)
     .then((result) => {
-
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
-      console.log("user logged in",credential);
+      console.log("user logged in", credential);
       // ...
     })
     .catch((error) => {
       // Handle Errors here.
       const errorMessage = error.message;
-      console.log(errorMessage)
+      console.log(errorMessage);
       // ...
     });
 };

@@ -4,4 +4,4 @@ import ethAbi from "./Transaction.json";
 export const tokenContractABI = tokenAbi;
 
 export const ethContractABI = ethAbi;
-export const ethContractAddress = "0x8391d89D925b63cBA24EF89d202749c697566C19";
+export const ethContractAddress = "0x9dEF824eD8913ef2B361ff4cE90ea0883Af68656";

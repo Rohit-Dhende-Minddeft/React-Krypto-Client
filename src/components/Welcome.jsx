@@ -16,7 +16,7 @@ import TabPanel from "@mui/lab/TabPanel";
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged  } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCHcY6FkWMeFDJtYBF-5Xb2gVmFqhjagxg",
@@ -76,7 +76,7 @@ const Welcome = () => {
     if (currentNetwork) {
       sendTransaction();
     } else {
-      return toast("Please connect to goerli network");
+      return toast("Please connect to BSC Testnet network");
     }
   };
 
@@ -93,7 +93,7 @@ const Welcome = () => {
       if (currentNetwork) {
         sendToken();
       } else {
-        return toast("Please connect to goerli network");
+        return toast("Please connect to BSC Testnet network");
       }
     }
   };
@@ -203,9 +203,9 @@ const Welcome = () => {
                     {currentAccount ? shortenAddress(currentAccount) : "--"}
                   </div>
                   <div className="welcome-ethereum-card-label">
-                  <div>Ethereum
-                  </div> <div className="card-holder-name">{username}</div></div>
-            
+                    <div>Ethereum</div>{" "}
+                    <div className="card-holder-name">{username}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -214,9 +214,8 @@ const Welcome = () => {
               <div className="card-details">
                 <div>
                   Eth Balance:{" "}
-                  {ethBalance ? ethBalance.slice(0, 6) + " ETH" : "--"}
+                  {ethBalance ? ethBalance.slice(0, 6) + " BNB" : "--"}
                 </div>
-
               </div>
             </div>
           </div>
@@ -354,7 +353,7 @@ const Welcome = () => {
                           handleInputTokenSubmit(e);
                           setBalanceVisibility(true);
                         } else {
-                          return toast("Please connect to goerli network");
+                          return toast("Please connect to BSC Test network");
                         }
 
                         if (balance === "" || balance === null) {

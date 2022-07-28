@@ -52,7 +52,7 @@ const App = () => {
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x5" }],
+        params: [{ chainId: "0x61" }],
       });
       setNetwork(true);
       window.location.reload();
@@ -64,9 +64,11 @@ const App = () => {
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: "0x5",
+                chainId: "0x61",
                 chainName: networkName,
-                rpcUrls: ["https://rpc.goerli.mudit.blog/"] /* ... */,
+                rpcUrls: [
+                  "https://data-seed-prebsc-1-s1.binance.org:8545/",
+                ] /* ... */,
               },
             ],
           });
@@ -89,10 +91,10 @@ const App = () => {
               {currentAccount && (
                 <div
                   className="check-network-label"
-                  onClick={() => handleNetworkSwitch("goerli")}
+                  onClick={() => handleNetworkSwitch("BSC Testnet")}
                 >
                   <i className="fas fa-exclamation-circle"></i>
-                  Click to set goerli network
+                  Click to set BSC Testnet network
                 </div>
               )}
             </div>

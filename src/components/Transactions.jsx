@@ -8,7 +8,7 @@ import "./css/Transaction.scss";
 const TransactionCard = ({ addressTo, amount, addressFrom, timestamp }) => {
   return (
     <a
-      href={`https://goerli.etherscan.io/address/${addressFrom}`}
+      href={`https:/testnet.bscscan.com/address/${addressFrom}`}
       target="_blank"
       rel="noreferrer"
     >

@@ -9,8 +9,6 @@ import {
   signInWithGoogle,
   emailSignUp,
 } from "../firebase/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase";
 
 const Login = (props) => {
   const handleSingInForm = async () => {
@@ -32,12 +30,7 @@ const Login = (props) => {
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
     try {
-      const docRef = await addDoc(collection(db, "usersWithEmail"), {
-        username: name,
-        email: email,
-      });
       emailSignUp(name, email, password);
-      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -56,7 +49,7 @@ const Login = (props) => {
         <label className="sign-up-label">
           {isLoginModal ? "Login" : "Sign up"} with email
         </label>
-        
+
         {!isLoginModal && (
           <div className="text-field">
             <TextField
@@ -94,12 +87,10 @@ const Login = (props) => {
             Submit
           </Button>
         </div>
-        <div>
-          or
-        </div>
+        <div>or</div>
         <label>Login with</label>
         <div className="google-logo">
-          <img src={googleLogo} onClick={handleGoogleSubmit} alt="logo"/>
+          <img src={googleLogo} onClick={handleGoogleSubmit} alt="logo" />
         </div>
         {isLoginModal ? (
           <div>
