@@ -5,24 +5,27 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import "./css/Transaction.scss";
 
-const TransactionCard = ({ addressTo, amount, addressFrom, timestamp }) => {
+const TransactionCard = ({ addressTo, amount, addressFrom, time }) => {
+  let date = new Date(parseInt(time));
+
   return (
     <a
       href={`https:/testnet.bscscan.com/address/${addressFrom}`}
       target="_blank"
-      rel="noreferrer"
+      rel="noreferrer noopener"
     >
       <div className="transaction-card">
         <span>Address From: {shortenAddress(addressFrom)}</span>
         <span>Address To: {shortenAddress(addressTo)}</span>
-        <span>Amount: {amount}</span>
-        <span>Timestamp: {timestamp}</span>
+        <span>Amount: {(amount * 10 ** -18).toString()}</span>
+        <span>Timestamp: {date.toLocaleString()}</span>
       </div>
     </a>
   );
 };
 const Transactions = () => {
-  const { currentAccount, transactions } = useContext(TransactionContext);
+  const { currentAccount, transactionData } = useContext(TransactionContext);
+
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -45,21 +48,21 @@ const Transactions = () => {
     <div className="transaction-parent" id="transactions">
       <div className="transaction-heading">
         {currentAccount ? (
-          <div>Latest Transactions</div>
+          <div>Latest Ether Transactions</div>
         ) : (
           <div>Please connect wallet to see latest transactions</div>
         )}
       </div>
 
-      {transactions?.length && transactions?.length !== 0 ? (
+      {transactionData?.length && transactionData?.length !== 0 ? (
         <Carousel responsive={responsive}>
-          {transactions.reverse().map((data, index) => {
+          {transactionData.slice(0, 10).map((data, index) => {
             return <TransactionCard key={index} {...data} />;
           })}
         </Carousel>
       ) : (
         <div className="no-transactions">
-          {transactions?.length === 0 && <>No Transactions</>}
+          {transactionData?.length === 0 && <>No Transactions</>}
         </div>
       )}
     </div>

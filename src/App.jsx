@@ -104,9 +104,10 @@ const App = () => {
               <Navbar />
               <Welcome />
             </div>
+            <Transactions />
             <Services />
           </div>
-          <Transactions />
+
           <Footer />
           {scroll && (
             <i

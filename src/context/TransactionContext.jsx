@@ -1,27 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import {
-  ethContractABI,
-  ethContractAddress,
-  tokenContractABI,
-} from "../utils/constants";
+import { tokenContractABI } from "../utils/constants";
 import { toast } from "react-toastify";
+import { useCallback } from "react";
 
 export const TransactionContext = React.createContext();
 
 const { ethereum } = window;
-
-const getEthereumContract = () => {
-  const provider = new ethers.providers.Web3Provider(ethereum);
-  const signer = provider.getSigner();
-  const ethContract = new ethers.Contract(
-    ethContractAddress,
-    ethContractABI,
-    signer
-  );
-
-  return ethContract;
-};
 
 const getTokenContract = (tokenAddress) => {
   const provider = new ethers.providers.Web3Provider(ethereum);
@@ -53,14 +38,6 @@ export const TransactionProvider = ({ children }) => {
 
   //Loading state
   const [isLoading, setIsLoading] = useState(false);
-
-  //Eth transaction count
-  const [transactionCount, setTransactionCount] = useState(
-    localStorage.getItem("transactionCount")
-  );
-
-  //Eth transactions
-  const [transactions, setTransactions] = useState({});
 
   //Check Metamask installed or not
   const [isMetamaskInstalled, setMetamaskInstalled] = useState(false);
@@ -115,32 +92,6 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
-  //Get all eth transactions
-  const getAllTransactions = async () => {
-    try {
-      const transactionContract = getEthereumContract();
-
-      const availableTransactions =
-        await transactionContract.getAllTransactions();
-
-      const structuredTransaction = availableTransactions.map(
-        (transactions) => {
-          return {
-            addressFrom: transactions.receiver,
-            addressTo: transactions.sender,
-            amount: parseInt(transactions.amount._hex) / 10 ** 18,
-            timestamp: new Date(
-              transactions.timestamp.toNumber() * 1000
-            ).toLocaleString(),
-          };
-        }
-      );
-      setTransactions(structuredTransaction);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   //Connect to wallet
   const connectWallet = async () => {
     try {
@@ -163,14 +114,13 @@ export const TransactionProvider = ({ children }) => {
     try {
       const { addressTo, amount } = formData;
 
-      const transactionContract = getEthereumContract();
       const parsedAmount = ethers.utils.parseEther(amount);
       const provider = new ethers.providers.Web3Provider(ethereum);
       let balance = await provider.getBalance(currentAccount);
       let ethBal = ethers.utils.formatEther(balance);
 
       if (amount < ethBal) {
-        await ethereum.request({
+        const transactionHash = await ethereum.request({
           method: "eth_sendTransaction",
           params: [
             {
@@ -181,21 +131,19 @@ export const TransactionProvider = ({ children }) => {
             },
           ],
         });
-        const transactionHash = await transactionContract.addToBlockChain(
-          addressTo,
-          parsedAmount
-        );
         setIsLoading(true);
-        console.log(`Loading-${transactionHash.hash}`);
-        await transactionHash.wait();
-        setIsLoading(false);
-        console.log(`Success-${transactionHash.hash}`);
 
-        const transactionCount =
-          await transactionContract.getTransactionCount();
-        setTransactionCount(transactionCount.toNumber());
+        console.log(`Loading-${transactionHash}`);
 
-        return toast("Transaction Completed");
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const txReceipt = await provider.waitForTransaction(transactionHash);
+
+        if (txReceipt.status === 1) {
+          console.log(`Success-${transactionHash}`);
+          setIsLoading(false);
+          getTransactions();
+          return toast("Transaction Completed");
+        }
       } else {
         return toast("Not enough eths to transfer");
       }
@@ -209,6 +157,33 @@ export const TransactionProvider = ({ children }) => {
       }
     }
   };
+
+  //Get Transaction List
+  const [transactionData, setTransactionData] = useState({});
+
+  const getTransactions = useCallback(() => {
+    fetch(
+      `https://api-testnet.bscscan.com/api?module=account&action=txlist&address=${currentAccount}&startblock=1&endblock=99999999&sort=asc&apikey=61QKQVFRCDPAQUED52PE46CRKTPWB2VEAH`
+    )
+      .then((res) => res.json())
+      .then((json) => {
+        let list = json.result;
+        let newList = [];
+
+        newList = Array.isArray(list)
+          ? list
+              .filter((transaction) => transaction.value > 0)
+              .map((transaction) => ({
+                addressFrom: transaction.from,
+                addressTo: transaction.to,
+                amount: transaction.value,
+                time: transaction.timeStamp,
+              }))
+          : [];
+
+        setTransactionData(newList.reverse());
+      });
+  }, [currentAccount]);
 
   //Send Token
   const sendToken = async () => {
@@ -240,7 +215,7 @@ export const TransactionProvider = ({ children }) => {
         return toast("You dont have sufficient tokens to transfer");
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       if (error.code === 4001) {
         return toast("User denied transaction");
       }
@@ -294,10 +269,9 @@ export const TransactionProvider = ({ children }) => {
 
         if (accounts.length) {
           setCurrentAccounts(accounts[0]);
-          getAllTransactions();
-          checkIfTransactionsExist();
           checkNetwork();
           getEthDetails(accounts[0]);
+          getTransactions();
         } else {
           console.log("No Account Found");
         }
@@ -306,17 +280,6 @@ export const TransactionProvider = ({ children }) => {
       }
     };
 
-    const checkIfTransactionsExist = async () => {
-      try {
-        const transactionContract = getEthereumContract();
-        const transactionCount =
-          await transactionContract.getTransactionCount();
-        window.localStorage.setItem("transactionCount", transactionCount);
-      } catch (error) {
-        console.error(error);
-        throw new Error("No Ethereum object.");
-      }
-    };
     const checkIfMetamaskInsalled = () => {
       if (!ethereum) {
         return setMetamaskInstalled(false);
@@ -327,7 +290,7 @@ export const TransactionProvider = ({ children }) => {
 
     checkIfMetamaskInsalled();
     checkIfWalletIsConnected();
-  }, []);
+  }, [getTransactions]);
 
   return (
     <TransactionContext.Provider
@@ -338,9 +301,7 @@ export const TransactionProvider = ({ children }) => {
         handleChange,
         handleTokenChange,
         sendTransaction,
-        transactions,
         isLoading,
-        transactionCount,
         isMetamaskInstalled,
         currentNetwork,
         sendToken,
@@ -350,6 +311,7 @@ export const TransactionProvider = ({ children }) => {
         handleAddressChange,
         handleInputTokenSubmit,
         ethBalance,
+        transactionData,
       }}
     >
       {children}
