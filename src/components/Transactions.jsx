@@ -8,19 +8,16 @@ import "./css/Transaction.scss";
 const TransactionCard = ({ addressTo, amount, addressFrom, time }) => {
   let date = new Date(parseInt(time));
 
+  const goToTransactionHistory = () => {
+    window.open(`https:/testnet.bscscan.com/address/${addressFrom}`, "_blank");
+  };
   return (
-    <a
-      href={`https:/testnet.bscscan.com/address/${addressFrom}`}
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <div className="transaction-card">
-        <span>Address From: {shortenAddress(addressFrom)}</span>
-        <span>Address To: {shortenAddress(addressTo)}</span>
-        <span>Amount: {(amount * 10 ** -18).toString()}</span>
-        <span>Timestamp: {date.toLocaleString()}</span>
-      </div>
-    </a>
+    <div className="transaction-card" onClick={goToTransactionHistory}>
+      <span>Address From: {shortenAddress(addressFrom)}</span>
+      <span>Address To: {shortenAddress(addressTo)}</span>
+      <span>Amount: {(amount * 10 ** -18).toString()}</span>
+      <span>Timestamp: {date.toLocaleString()}</span>
+    </div>
   );
 };
 const Transactions = () => {

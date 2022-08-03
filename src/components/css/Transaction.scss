@@ -1,13 +1,8 @@
 .transaction-parent {
-  // background-color: #e9f3f1;
   padding: 1em 1em 2em 1em;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  // border-top: 2px dashed #75cfdf;
-  // border-bottom: 2px dashed #75cfdf;
-  // border-right: 3px dashed #75cfdf;
-  // border-left: 3px dashed #75cfdf;
   .react-multi-carousel-item {
     display: flex;
     justify-content: center;
@@ -53,6 +48,7 @@
   font-size: 0.8em;
   background-color: #42427e;
   border: 1px solid #42427e;
+  cursor: pointer;
 }
 .transaction-card > span {
   width: 100%;
@@ -67,16 +63,11 @@
 .transaction-card > span:last-child {
   border-bottom: none;
 }
-a {
-  text-decoration: none;
-}
-a:hover {
-  .transaction-card {
-    z-index: 1;
-    box-shadow: 1px 1px 7px rgb(69, 56, 124);
-    border: 1px solid #fff;
-    transition: ease-in 0.1s;
-  }
+.transaction-card:hover {
+  z-index: 1;
+  box-shadow: 1px 1px 7px rgb(69, 56, 124);
+  border: 1px solid #fff;
+  transition: ease-in 0.1s;
 }
 .no-transactions {
   align-self: center;

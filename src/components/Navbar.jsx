@@ -78,7 +78,6 @@ const Navbar = () => {
       } else {
         // User is signed out
         // ...
-        
       }
     });
 
@@ -99,9 +98,9 @@ const Navbar = () => {
 
     const handleNavigation = (options) => {
       if (
-        options === "Services" ||
-        options === "Transactions" ||
         options === "Transfer" ||
+        options === "Transactions" ||
+        options === "Services" ||
         options === "Tutorials"
       ) {
         setToggle(false);
@@ -137,7 +136,7 @@ const Navbar = () => {
           </Fade>
         </Modal>
         <div className={`${menuItemStyle} ${menuOptions}`} id="tutorials">
-          {["Services", "Transactions", "Tutorials", "Transfer"].map(
+          {["Transfer", "Transactions", "Services", "Tutorials"].map(
             (options, index) => {
               let scrollTo = options?.toLowerCase();
               return (
