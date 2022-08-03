@@ -9,7 +9,7 @@ const TransactionCard = ({ addressTo, amount, addressFrom, time }) => {
   let date = new Date(parseInt(time));
 
   const goToTransactionHistory = () => {
-    window.open(`https:/testnet.bscscan.com/address/${addressFrom}`, "_blank");
+    window.open(`https://testnet.bscscan.com/address/${addressFrom}`, "_blank");
   };
   return (
     <div className="transaction-card" onClick={goToTransactionHistory}>
