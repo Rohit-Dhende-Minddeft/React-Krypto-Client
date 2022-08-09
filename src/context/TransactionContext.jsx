@@ -137,7 +137,7 @@ export const TransactionProvider = ({ children }) => {
 
         const provider = new ethers.providers.Web3Provider(ethereum);
         const txReceipt = await provider.waitForTransaction(transactionHash);
-
+    
         if (txReceipt.status === 1) {
           console.log(`Success-${transactionHash}`);
           setIsLoading(false);
@@ -178,6 +178,7 @@ export const TransactionProvider = ({ children }) => {
                 addressTo: transaction.to,
                 amount: transaction.value,
                 time: transaction.timeStamp,
+                transactionHash: transaction.hash
               }))
           : [];
 
@@ -233,6 +234,7 @@ export const TransactionProvider = ({ children }) => {
 
   useEffect(() => {
     const checkNetwork = async () => {
+      console.log("hello from check network")
       let networks = {
         bsc: {
           chainId: "0x61",
@@ -311,7 +313,7 @@ export const TransactionProvider = ({ children }) => {
         handleAddressChange,
         handleInputTokenSubmit,
         ethBalance,
-        transactionData,
+        transactionData
       }}
     >
       {children}

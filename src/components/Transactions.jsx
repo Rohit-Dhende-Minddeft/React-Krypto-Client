@@ -5,11 +5,11 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import "./css/Transaction.scss";
 
-const TransactionCard = ({ addressTo, amount, addressFrom, time }) => {
+const TransactionCard = ({ addressTo, amount, addressFrom, time, transactionHash }) => {
   let date = new Date(parseInt(time));
 
   const goToTransactionHistory = () => {
-    window.open(`https://testnet.bscscan.com/address/${addressFrom}`, "_blank");
+    window.open(`https://testnet.bscscan.com/tx/${transactionHash}`, "_blank");
   };
   return (
     <div className="transaction-card" onClick={goToTransactionHistory}>
