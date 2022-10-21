@@ -4,6 +4,7 @@
     color: rgb(146, 146, 146);
     font-weight: 100;
   }
+  padding-top: 4rem;
 }
 .welcome-portrait-view {
   display: flex;
@@ -12,6 +13,7 @@
     color: rgb(146, 146, 146);
     font-weight: 100;
   }
+  padding-top: 4rem;
 }
 .welcome-left-side {
   flex: 1;
@@ -349,6 +351,7 @@
   .welcome-portrait-view {
     font-size: 0.5em;
     padding-bottom: 10em;
+    padding-top:5rem ;
   }
   .welcome-left-side {
     justify-content: center;
@@ -374,10 +377,11 @@
   }
 }
 
-@media only screen and (min-width: 480px) and (max-width: 900px) {
+@media only screen and (min-width: 481px) and (max-width: 900px) {
   .welcome-portrait-view {
     font-size: 0.5em;
     padding-bottom: 10em;
+    padding-top:5rem ;
   }
   .welcome-left-side {
     justify-content: center;
@@ -400,5 +404,12 @@
   .collect-wallet-button,
   .collect-wallet-text {
     align-self: center;
+  }
+}
+
+
+@media only screen and (min-width: 901px)  and (max-width: 1000px)  {
+  .welcome-portrait-view {
+    padding-top:9rem ;
   }
 }

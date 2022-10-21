@@ -74,7 +74,7 @@ const Welcome = () => {
     }
 
     if (currentNetwork) {
-      sendTransaction();
+    sendTransaction();
     } else {
       return toast("Please connect to BSC Testnet network");
     }
@@ -350,8 +350,8 @@ const Welcome = () => {
                       type="button"
                       onClick={(e) => {
                         if (currentNetwork) {
-                          handleInputTokenSubmit(e);
-                          setBalanceVisibility(true);
+                        handleInputTokenSubmit(e);
+                        setBalanceVisibility(true);
                         } else {
                           return toast("Please connect to BSC Test network");
                         }

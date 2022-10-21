@@ -3,6 +3,8 @@ import { ethers } from "ethers";
 import { tokenContractABI } from "../utils/constants";
 import { toast } from "react-toastify";
 import { useCallback } from "react";
+import Web3Modal from "web3modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export const TransactionContext = React.createContext();
 
@@ -95,19 +97,63 @@ export const TransactionProvider = ({ children }) => {
   //Connect to wallet
   const connectWallet = async () => {
     try {
-      const accounts = await ethereum?.request({
-        method: "eth_requestAccounts",
+      let webModal = new Web3Modal({
+        cacheProvider: false,
+        providerOptions,
+        theme: {
+          background: "rgb(39, 49, 56)",
+          main: "rgb(199, 199, 199)",
+          secondary: "rgb(136, 136, 136)",
+          border: "rgba(195, 195, 195, 0.14)",
+          hover: "rgb(16, 26, 32)",
+        },
       });
+      const Web3ModalInstance = await webModal.connect();
+      const web3ModalProvider = await ethers.providers.Web3Provider(
+        Web3ModalInstance
+      );
 
-      setCurrentAccounts(accounts[0]);
-      window.location.reload();
+      if (web3ModalProvider) {
+        setWeb3Provider(web3ModalProvider);
+      }
     } catch (error) {
+      console.log("this is err", error);
       if (error.code === 4001) {
         console.log("User rejected the request");
       }
-      throw new Error("No Ethereum object.");
+      return;
     }
   };
+
+  const providerOptions = {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        appName: "Connect Wallet",
+        infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
+      },
+    },
+  };
+
+  const [web3Provider, setWeb3Provider] = useState("");
+  async function connectTheWallet() {
+    try {
+      let webModal = new Web3Modal({
+        cacheProvider: false,
+        providerOptions,
+      });
+      const Web3ModalInstance = await webModal.connect();
+      const web3ModalProvider = await ethers.providers.Web3Provider(
+        Web3ModalInstance
+      );
+
+      if (web3ModalProvider) {
+        setWeb3Provider(web3ModalProvider);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   //Send eth
   const sendTransaction = async () => {
@@ -137,7 +183,7 @@ export const TransactionProvider = ({ children }) => {
 
         const provider = new ethers.providers.Web3Provider(ethereum);
         const txReceipt = await provider.waitForTransaction(transactionHash);
-    
+
         if (txReceipt.status === 1) {
           console.log(`Success-${transactionHash}`);
           setIsLoading(false);
@@ -178,7 +224,7 @@ export const TransactionProvider = ({ children }) => {
                 addressTo: transaction.to,
                 amount: transaction.value,
                 time: transaction.timeStamp,
-                transactionHash: transaction.hash
+                transactionHash: transaction.hash,
               }))
           : [];
 
@@ -234,7 +280,6 @@ export const TransactionProvider = ({ children }) => {
 
   useEffect(() => {
     const checkNetwork = async () => {
-      console.log("hello from check network")
       let networks = {
         bsc: {
           chainId: "0x61",
@@ -313,7 +358,7 @@ export const TransactionProvider = ({ children }) => {
         handleAddressChange,
         handleInputTokenSubmit,
         ethBalance,
-        transactionData
+        transactionData,
       }}
     >
       {children}
